@@ -1,526 +1,181 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../models/onboarding_slide.dart';
 
+/// Custom illustration matching the desk worker with laptop and phone in the onboarding mockup.
 class OnboardingGraphic extends StatelessWidget {
-  final GraphicType type;
-  final List<Color> gradient;
-
-  const OnboardingGraphic({
-    super.key,
-    required this.type,
-    required this.gradient,
-  });
+  const OnboardingGraphic({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: SizedBox(
-        height: 260,
-        width: 320,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Background soft glowing aura
-            Container(
-              width: 240,
-              height: 240,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    gradient.first.withValues(alpha: 0.28),
-                    gradient.last.withValues(alpha: 0.0),
-                  ],
-                ),
-              ),
+    return SizedBox(
+      height: 280,
+      width: 280,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Background concentric soft circles
+          Container(
+            width: 260,
+            height: 260,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFFE0F2FE).withValues(alpha: 0.5),
             ),
+          ),
+          Container(
+            width: 210,
+            height: 210,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0xFFE0F7FA),
+            ),
+          ),
 
-          // Render type-specific graphic
-          switch (type) {
-            GraphicType.taskFlow => _buildTaskFlowGraphic(context),
-            GraphicType.prioritySchedule => _buildPriorityScheduleGraphic(context),
-            GraphicType.analyticsInsights => _buildAnalyticsGraphic(context),
-          },
+          // Custom Painter for Desk, Laptop, Character and Phone
+          CustomPaint(
+            size: const Size(260, 260),
+            painter: _DeskWorkerPainter(),
+          ),
         ],
       ),
-    ),
-  );
+    );
+  }
 }
 
-  Widget _buildTaskFlowGraphic(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF162036) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF283548) : const Color(0xFFE2E8F0);
+class _DeskWorkerPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // Background tilted card
-        Transform.rotate(
-          angle: -0.06,
-          child: Container(
-            width: 280,
-            height: 160,
-            decoration: BoxDecoration(
-              color: cardBg.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: borderColor.withValues(alpha: 0.5)),
-            ),
-          ),
-        ),
-
-        // Main Primary Task Card
-        Container(
-          width: 300,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: borderColor),
-            boxShadow: [
-              BoxShadow(
-                color: gradient.first.withValues(alpha: 0.18),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: gradient),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'DESIGN SYSTEM',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.priorityUrgent.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.priority_high_rounded, size: 12, color: AppColors.priorityUrgent),
-                        SizedBox(width: 2),
-                        Text(
-                          'URGENT',
-                          style: TextStyle(
-                            color: AppColors.priorityUrgent,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              const Text(
-                'Ship High-Impact Release 2.0',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 14),
-              // Subtask 1
-              _buildMiniCheckRow('Tokens & Glassmorphism polish', true, gradient.first),
-              const SizedBox(height: 8),
-              // Subtask 2
-              _buildMiniCheckRow('Interactive physics & haptics', true, gradient.first),
-              const SizedBox(height: 8),
-              // Subtask 3
-              _buildMiniCheckRow('Verify 100% test coverage', false, gradient.first),
-            ],
-          ),
-        ),
-
-        // Floating badge
-        Positioned(
-          top: 15,
-          right: 25,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.success,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.success.withValues(alpha: 0.4),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.check_circle_rounded, size: 16, color: Colors.white),
-                SizedBox(width: 6),
-                Text(
-                  '2/3 Done',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+    // 1. Desk Base Line
+    final deskPaint = Paint()
+      ..color = const Color(0xFF00B4D8)
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+      Offset(cx - 100, cy + 70),
+      Offset(cx + 100, cy + 70),
+      deskPaint,
     );
-  }
 
-  Widget _buildPriorityScheduleGraphic(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF162036) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF283548) : const Color(0xFFE2E8F0);
+    // 2. Character Body / Blue Sweater
+    final bodyPaint = Paint()..color = const Color(0xFF00B4D8);
+    final bodyPath = Path()
+      ..moveTo(cx - 55, cy + 70)
+      ..quadraticBezierTo(cx - 50, cy - 10, cx, cy - 10)
+      ..quadraticBezierTo(cx + 50, cy - 10, cx + 55, cy + 70)
+      ..close();
+    canvas.drawPath(bodyPath, bodyPaint);
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // Main Calendar Schedule Box
-        Container(
-          width: 300,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: borderColor),
-            boxShadow: [
-              BoxShadow(
-                color: gradient.first.withValues(alpha: 0.2),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: gradient.first.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(Icons.calendar_today_rounded, size: 18, color: gradient.first),
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Today\'s Agenda',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      '3 Tasks',
-                      style: TextStyle(
-                        color: AppColors.primaryLight,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              _buildScheduleSlot('09:00 AM', 'Sprint Architecture Review', AppColors.primary, true),
-              const SizedBox(height: 10),
-              _buildScheduleSlot('01:30 PM', 'Figma Prototype Review', AppColors.accent, false),
-              const SizedBox(height: 10),
-              _buildScheduleSlot('05:00 PM', '5km Sunset Trail Cardio', AppColors.success, false),
-            ],
-          ),
-        ),
+    // Collar / neckline
+    final neckPaint = Paint()..color = const Color(0xFFFFD1B3);
+    final collarPath = Path()
+      ..moveTo(cx - 16, cy - 8)
+      ..quadraticBezierTo(cx, cy + 4, cx + 16, cy - 8)
+      ..close();
+    canvas.drawPath(collarPath, neckPaint);
 
-        // Floating Priority Pill
-        Positioned(
-          bottom: 20,
-          right: 30,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFF43F5E), Color(0xFFFB7185)],
-              ),
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.accent.withValues(alpha: 0.4),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.bolt_rounded, size: 16, color: Colors.white),
-                SizedBox(width: 4),
-                Text(
-                  'Never Fall Behind',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+    // 3. Head & Face
+    final facePaint = Paint()..color = const Color(0xFFFFD1B3);
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(cx, cy - 35), width: 44, height: 50),
+      facePaint,
     );
-  }
 
-  Widget _buildAnalyticsGraphic(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? const Color(0xFF162036) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF283548) : const Color(0xFFE2E8F0);
+    // Hair
+    final hairPaint = Paint()..color = const Color(0xFF1E232E);
+    final hairPath = Path()
+      ..moveTo(cx - 24, cy - 40)
+      ..quadraticBezierTo(cx - 10, cy - 65, cx + 5, cy - 60)
+      ..quadraticBezierTo(cx + 25, cy - 58, cx + 24, cy - 36)
+      ..lineTo(cx + 20, cy - 44)
+      ..quadraticBezierTo(cx, cy - 48, cx - 20, cy - 42)
+      ..close();
+    canvas.drawPath(hairPath, hairPaint);
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          width: 300,
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: borderColor),
-            boxShadow: [
-              BoxShadow(
-                color: gradient.first.withValues(alpha: 0.2),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Weekly Velocity',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                      ),
-                      Text(
-                        'Top 5% of Productive Weeks',
-                        style: TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.success.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.trending_up_rounded, color: AppColors.success, size: 20),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              // 7 Day Bars
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  _buildDayBar('M', 45, false),
-                  _buildDayBar('T', 70, false),
-                  _buildDayBar('W', 55, false),
-                  _buildDayBar('T', 85, true),
-                  _buildDayBar('F', 65, false),
-                  _buildDayBar('S', 95, true),
-                  _buildDayBar('S', 110, true),
-                ],
-              ),
-            ],
-          ),
-        ),
+    // Eyes
+    final featurePaint = Paint()
+      ..color = const Color(0xFF1E232E)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(cx - 8, cy - 34), 2.2, featurePaint);
+    canvas.drawCircle(Offset(cx + 8, cy - 34), 2.2, featurePaint);
 
-        // Floating Streak Badge
-        Positioned(
-          top: 15,
-          left: 25,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
-              ),
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.warning.withValues(alpha: 0.4),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.local_fire_department_rounded, size: 16, color: Colors.white),
-                SizedBox(width: 4),
-                Text(
-                  '🔥 5 Day Streak',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+    // Eyebrows & Stress lines
+    final browPaint = Paint()
+      ..color = const Color(0xFF1E232E)
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+    canvas.drawLine(Offset(cx - 12, cy - 40), Offset(cx - 4, cy - 38), browPaint);
+    canvas.drawLine(Offset(cx + 4, cy - 38), Offset(cx + 12, cy - 40), browPaint);
+
+    // Little open focused mouth
+    final mouthPaint = Paint()..color = const Color(0xFFFF6B4A);
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(cx, cy - 24), width: 8, height: 6),
+      mouthPaint,
     );
-  }
 
-  Widget _buildMiniCheckRow(String text, bool completed, Color accentColor) {
-    return Row(
-      children: [
-        Container(
-          width: 18,
-          height: 18,
-          decoration: BoxDecoration(
-            color: completed ? accentColor : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: completed ? accentColor : const Color(0xFF94A3B8),
-              width: 1.5,
-            ),
-          ),
-          child: completed
-              ? const Icon(Icons.check, size: 12, color: Colors.white)
-              : null,
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              decoration: completed ? TextDecoration.lineThrough : null,
-              color: completed ? const Color(0xFF94A3B8) : null,
-              fontWeight: FontWeight.w500,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
+    // 4. Laptop on Desk (Right side)
+    final laptopPaint = Paint()..color = Colors.white;
+    final laptopBorder = Paint()
+      ..color = const Color(0xFFCBD5E1)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    final laptopScreen = Path()
+      ..moveTo(cx + 15, cy + 70)
+      ..lineTo(cx + 25, cy + 30)
+      ..lineTo(cx + 70, cy + 30)
+      ..lineTo(cx + 60, cy + 70)
+      ..close();
+    canvas.drawPath(laptopScreen, laptopPaint);
+    canvas.drawPath(laptopScreen, laptopBorder);
+
+    // Laptop logo / icon
+    canvas.drawCircle(Offset(cx + 43, cy + 50), 3, Paint()..color = const Color(0xFF00B4D8));
+
+    // Mouse / pad
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(cx - 2, cy + 70), width: 16, height: 10),
+      Paint()..color = const Color(0xFFE2E8F0),
     );
-  }
 
-  Widget _buildScheduleSlot(String time, String title, Color dotColor, bool isNext) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: isNext ? dotColor.withValues(alpha: 0.1) : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isNext ? dotColor.withValues(alpha: 0.3) : const Color(0x1FFFFFFF),
-        ),
+    // 5. Phone in Hand (Left/Center)
+    final phonePaint = Paint()..color = const Color(0xFF8B5CF6);
+    final phoneScreen = Paint()..color = const Color(0xFFC4B5FD);
+    final phoneRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: Offset(cx + 6, cy + 22), width: 18, height: 32),
+      const Radius.circular(4),
+    );
+    canvas.drawRRect(phoneRect, phonePaint);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset(cx + 6, cy + 22), width: 14, height: 26),
+        const Radius.circular(2),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: dotColor,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            time,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
+      phoneScreen,
     );
+
+    // 6. Alert / Focus Sparkles above head
+    final sparkPaint = Paint()
+      ..color = const Color(0xFFFF6B4A)
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    // Left sparks
+    canvas.drawLine(Offset(cx - 38, cy - 65), Offset(cx - 48, cy - 60), sparkPaint);
+    canvas.drawLine(Offset(cx - 48, cy - 60), Offset(cx - 36, cy - 50), sparkPaint);
+    canvas.drawLine(Offset(cx - 36, cy - 50), Offset(cx - 46, cy - 42), sparkPaint);
+
+    // Right sparks
+    canvas.drawLine(Offset(cx + 38, cy - 65), Offset(cx + 48, cy - 60), sparkPaint);
+    canvas.drawLine(Offset(cx + 48, cy - 60), Offset(cx + 36, cy - 50), sparkPaint);
+    canvas.drawLine(Offset(cx + 36, cy - 50), Offset(cx + 46, cy - 42), sparkPaint);
   }
 
-  Widget _buildDayBar(String day, double height, bool isPeak) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 22,
-          height: height,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: isPeak
-                  ? [AppColors.success, const Color(0xFF34D399)]
-                  : [AppColors.primary.withValues(alpha: 0.3), AppColors.primary],
-            ),
-            borderRadius: BorderRadius.circular(6),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          day,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isPeak ? FontWeight.w700 : FontWeight.w500,
-            color: isPeak ? AppColors.success : const Color(0xFF94A3B8),
-          ),
-        ),
-      ],
-    );
-  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

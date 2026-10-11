@@ -4,7 +4,7 @@ import '../constants/app_constants.dart';
 
 class ThemeProvider extends ChangeNotifier {
   final SharedPreferences _prefs;
-  ThemeMode _themeMode = ThemeMode.dark; // Default to dark for sleek aesthetics
+  ThemeMode _themeMode = ThemeMode.light;
 
   ThemeProvider(this._prefs) {
     _loadThemeMode();
@@ -16,12 +16,12 @@ class ThemeProvider extends ChangeNotifier {
 
   void _loadThemeMode() {
     final savedMode = _prefs.getString(AppConstants.keyThemeMode);
-    if (savedMode == 'light') {
-      _themeMode = ThemeMode.light;
+    if (savedMode == 'dark') {
+      _themeMode = ThemeMode.dark;
     } else if (savedMode == 'system') {
       _themeMode = ThemeMode.system;
     } else {
-      _themeMode = ThemeMode.dark;
+      _themeMode = ThemeMode.light;
     }
     notifyListeners();
   }

@@ -10,7 +10,7 @@ import 'package:my_flutter_app/main.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('ApexTask shows onboarding screen on fresh launch', (WidgetTester tester) async {
+  testWidgets('ApexTask shows onboarding screen matching mockup on fresh launch', (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     final taskRepo = LocalStorageTaskRepository(prefs);
@@ -29,15 +29,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Verify Onboarding elements appear
-    expect(find.text('ApexTask'), findsOneWidget);
-    expect(find.text('SEAMLESS FLOW'), findsOneWidget);
-    expect(find.text('Conquer Your Day With Precision'), findsOneWidget);
-    expect(find.text('Continue'), findsOneWidget);
-    expect(find.text('Skip'), findsOneWidget);
+    // Verify Onboarding Screen 1 elements matching mockup
+    expect(find.text('Manage your task'), findsOneWidget);
+    expect(find.text('Increase your productivity by managing\nyour personal and team task'), findsOneWidget);
+    expect(find.text("Let's Start"), findsOneWidget);
   });
 
-  testWidgets('ApexTask loads dashboard when onboarding already completed', (WidgetTester tester) async {
+  testWidgets('ApexTask loads dashboard matching Screen 2 mockup', (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({
       'apex_task_has_seen_onboarding': true,
     });
@@ -58,11 +56,43 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Verify home dashboard elements
-    expect(find.text("Today's Focus"), findsOneWidget);
-    expect(find.text('Tasks'), findsOneWidget);
-    expect(find.text('Calendar'), findsOneWidget);
-    expect(find.text('Analytics'), findsOneWidget);
-    expect(find.text('Profile'), findsOneWidget);
+    // Verify home dashboard elements matching Screen 2 mockup
+    expect(find.text('Linda C. Ng'), findsOneWidget);
+    expect(find.text('Your daily task\nalmost done!'), findsOneWidget);
+    expect(find.text('View Task'), findsOneWidget);
+    expect(find.text("Today's Task"), findsOneWidget);
+    expect(find.text('Upcoming Task'), findsOneWidget);
+  });
+
+  testWidgets('Navigating to task details renders Screen 3 mockup', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({'apex_task_has_seen_onboarding': true});
+    final prefs = await SharedPreferences.getInstance();
+    final taskRepo = LocalStorageTaskRepository(prefs);
+    final onboardingRepo = OnboardingRepository(prefs);
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider<ITaskRepository>.value(value: taskRepo),
+          Provider<IOnboardingRepository>.value(value: onboardingRepo),
+          ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider(prefs)),
+          ChangeNotifierProvider<TaskProvider>(create: (_) => TaskProvider(taskRepo)),
+        ],
+        child: const ApexTaskApp(hasCompletedOnboarding: true),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Tap "View Task"
+    await tester.tap(find.text('View Task'));
+    await tester.pumpAndSettle();
+
+    // Verify Task Details elements matching Screen 3 mockup
+    expect(find.text('Task Details'), findsOneWidget);
+    expect(find.text('Finish on time'), findsOneWidget);
+    expect(find.text('Past the deadline'), findsOneWidget);
+    expect(find.text('Still ongoing'), findsOneWidget);
+    expect(find.text('Description'), findsOneWidget);
+    expect(find.text('Sub Task'), findsOneWidget);
   });
 }

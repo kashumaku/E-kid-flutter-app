@@ -18,6 +18,13 @@ class ProgressSummaryCard extends StatelessWidget {
     return 'Good evening';
   }
 
+  IconData _getGreetingIcon() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return Icons.wb_sunny_outlined;
+    if (hour < 17) return Icons.wb_sunny_rounded;
+    return Icons.nightlight_round;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -25,14 +32,14 @@ class ProgressSummaryCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDark
               ? [
-                  const Color(0xFF1E1B4B), // Deep indigo
+                  const Color(0xFF1E1B4B), // Deep obsidian indigo
                   const Color(0xFF0F172A),
                 ]
               : [
@@ -55,37 +62,43 @@ class ProgressSummaryCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Greeting & Streak
+          // Row 1: Greeting + Streak badge (Side by side with plenty of room)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${_getGreeting()}, Ready to conquer today?',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      _getGreetingIcon(),
+                      size: 14,
                       color: isDark ? AppColors.primaryLight : AppColors.primaryDark,
-                      letterSpacing: 0.3,
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Today\'s Focus',
-                    style: AppTypography.displaySmall.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        _getGreeting(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.primaryLight : AppColors.primaryDark,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
 
               // Streak Chip
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFFF59E0B), Color(0xFFEA580C)],
@@ -94,21 +107,21 @@ class ProgressSummaryCard extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.warning.withValues(alpha: 0.35),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.local_fire_department_rounded, size: 16, color: Colors.white),
+                    const Icon(Icons.local_fire_department_rounded, size: 14, color: Colors.white),
                     const SizedBox(width: 4),
                     Text(
                       '${provider.currentStreak}d Streak',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -117,21 +130,31 @@ class ProgressSummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 6),
 
-          // Middle: Circular Gauge and Stats Breakdown
+          // Row 2: "Today's Focus" title (Unconstrained full-width heading)
+          Text(
+            'Today\'s Focus',
+            style: AppTypography.displaySmall.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          // Row 3: Circular Ring Gauge and 3 Metric Tiles
           Row(
             children: [
               // Radial Progress Gauge
               SizedBox(
-                width: 76,
-                height: 76,
+                width: 66,
+                height: 66,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     CircularProgressIndicator(
                       value: provider.completionRate,
-                      strokeWidth: 8,
+                      strokeWidth: 7,
                       backgroundColor: isDark
                           ? const Color(0xFF312E81)
                           : const Color(0xFFC7D2FE),
@@ -140,20 +163,26 @@ class ProgressSummaryCard extends StatelessWidget {
                       ),
                       strokeCap: StrokeCap.round,
                     ),
-                    Text(
-                      '$completionPct%',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : AppColors.primaryDark,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: Text(
+                          '$completionPct%',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? Colors.white : AppColors.primaryDark,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 14),
 
-              // Breakdown counters
+              // 3 Metric Cards (Pending, Done, Overdue)
               Expanded(
                 child: Row(
                   children: [
@@ -164,15 +193,15 @@ class ProgressSummaryCard extends StatelessWidget {
                       icon: Icons.timelapse_rounded,
                       color: AppColors.primaryLight,
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 6),
                     _buildStatCol(
                       context,
-                      label: 'Completed',
+                      label: 'Done',
                       value: '${provider.completedTasksCount}',
                       icon: Icons.check_circle_rounded,
                       color: AppColors.success,
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 6),
                     _buildStatCol(
                       context,
                       label: 'Overdue',
@@ -201,36 +230,45 @@ class ProgressSummaryCard extends StatelessWidget {
 
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
           color: isDark
               ? Colors.black.withValues(alpha: 0.25)
               : Colors.white.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: color.withValues(alpha: 0.25),
           ),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
+            Icon(icon, size: 15, color: color),
+            const SizedBox(height: 3),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
               ),
             ),
             const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                softWrap: false,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                ),
               ),
             ),
           ],

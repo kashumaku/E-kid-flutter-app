@@ -1,36 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/widgets/empty_state.dart';
-import '../../domain/models/task_category.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../controllers/task_provider.dart';
-import '../widgets/category_pill.dart';
-import '../widgets/progress_summary_card.dart';
-import '../widgets/search_filter_bar.dart';
-import '../widgets/task_card.dart';
+import '../widgets/hero_task_banner.dart';
+import '../widgets/today_task_card.dart';
+import '../widgets/upcoming_task_card.dart';
 import '../widgets/task_form_sheet.dart';
 import 'task_detail_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   void _openCreateSheet(BuildContext context, TaskProvider provider) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -38,113 +24,251 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _openTaskDetails(BuildContext context, TaskProvider provider, String taskId) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TaskDetailScreen(
+          taskId: taskId,
+          provider: provider,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TaskProvider>();
-    final filteredTasks = provider.filteredTasks;
-    final categoryCounts = provider.categoryCounts;
+    final tasks = provider.tasks;
+    final now = DateTime.now();
+    final dateString = DateFormat('d MMM yyyy').format(now);
+
+    // Filter today's tasks and upcoming tasks
+    final todayTasks = tasks.take(2).toList();
+    final upcomingTasks = tasks.length > 2 ? tasks.skip(2).toList() : tasks;
 
     return Scaffold(
+      backgroundColor: AppColors.lightBackground,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => provider.loadTasks(),
-          child: CustomScrollView(
-            slivers: [
-              // Top Spacing & Summary Card
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-                  child: ProgressSummaryCard(provider: provider),
-                ),
-              ),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 100),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Bar: User Profile Avatar + Linda C. Ng + Search Button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        // Avatar
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFFFDE68A),
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.face_rounded,
+                              color: Color(0xFF92400E),
+                              size: 28,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Linda C. Ng',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1E232E),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              dateString,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
 
-              // Categories Horizontal List
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: SingleChildScrollView(
+                    // Search Button in rounded container
+                    GestureDetector(
+                      onTap: () => _openCreateSheet(context, provider),
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.search_rounded,
+                          color: Color(0xFF64748B),
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // Hero Banner: "Your daily task almost done!"
+                HeroTaskBannerCard(
+                  provider: provider,
+                  onViewTask: () {
+                    if (tasks.isNotEmpty) {
+                      _openTaskDetails(context, provider, tasks.first.id);
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                // Section 1: "Today's Task" + "See All"
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Today\'s Task',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E232E),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF94A3B8),
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'See All',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 14),
+
+                // Horizontal list of Today's Task Cards (Cyan & Coral)
+                SizedBox(
+                  height: 180,
+                  child: ListView(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      children: TaskCategory.defaultCategories.map((category) {
-                        final isSelected = provider.selectedCategory?.id == category.id;
-                        final count = categoryCounts[category] ?? 0;
+                    children: [
+                      if (todayTasks.isNotEmpty) ...[
+                        TodayTaskCard(
+                          task: todayTasks[0],
+                          backgroundColor: AppColors.cardCyan,
+                          icon: Icons.grid_view_rounded,
+                          progress: 0.40,
+                          onTap: () => _openTaskDetails(context, provider, todayTasks[0].id),
+                        ),
+                        const SizedBox(width: 14),
+                      ],
+                      if (todayTasks.length > 1) ...[
+                        TodayTaskCard(
+                          task: todayTasks[1],
+                          backgroundColor: AppColors.cardCoral,
+                          icon: Icons.groups_rounded,
+                          progress: 0.60,
+                          onTap: () => _openTaskDetails(context, provider, todayTasks[1].id),
+                        ),
+                        const SizedBox(width: 14),
+                      ],
+                      // Additional fallback cards if tasks exist
+                      ...tasks.skip(2).take(1).map((t) {
                         return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: CategoryPill(
-                            category: category,
-                            isSelected: isSelected,
-                            count: count,
-                            onTap: () => provider.setCategory(category),
+                          padding: const EdgeInsets.only(right: 14),
+                          child: TodayTaskCard(
+                            task: t,
+                            backgroundColor: AppColors.cardPurple,
+                            icon: Icons.palette_rounded,
+                            progress: 0.75,
+                            onTap: () => _openTaskDetails(context, provider, t.id),
                           ),
                         );
-                      }).toList(),
-                    ),
+                      }),
+                    ],
                   ),
                 ),
-              ),
 
-              // Search & Filter Bar
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-                  child: SearchFilterBar(
-                    provider: provider,
-                    searchController: _searchController,
-                  ),
-                ),
-              ),
+                const SizedBox(height: 28),
 
-              // Task List or Empty State
-              if (provider.isLoading)
-                const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (filteredTasks.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: EmptyStateWidget(
-                    icon: Icons.checklist_rounded,
-                    title: 'No tasks found',
-                    message: provider.searchQuery.isNotEmpty
-                        ? 'No tasks match "${provider.searchQuery}". Try a different keyword.'
-                        : 'You are all caught up in this view! Enjoy your momentum.',
-                    buttonLabel: 'Create a Task',
-                    onAction: () => _openCreateSheet(context, provider),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 90),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final task = filteredTasks[index];
-                        return TaskCard(
-                          task: task,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => TaskDetailScreen(
-                                  taskId: task.id,
-                                  provider: provider,
-                                ),
-                              ),
-                            );
-                          },
-                          onToggleComplete: () {
-                            provider.toggleTaskCompletion(task.id);
-                          },
-                          onDelete: () {
-                            provider.deleteTask(task.id);
-                          },
-                        );
-                      },
-                      childCount: filteredTasks.length,
+                // Section 2: "Upcoming Task" + "See All"
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Upcoming Task',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E232E),
+                      ),
                     ),
-                  ),
+                    TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF94A3B8),
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'See All',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
                 ),
-            ],
+
+                const SizedBox(height: 14),
+
+                // Vertical List of Upcoming Task Cards
+                ...upcomingTasks.map((task) {
+                  return UpcomingTaskCard(
+                    task: task,
+                    onTap: () => _openTaskDetails(context, provider, task.id),
+                  );
+                }),
+              ],
+            ),
           ),
         ),
       ),

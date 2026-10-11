@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../onboarding/data/onboarding_repository.dart';
 import '../tasks/presentation/controllers/task_provider.dart';
-import '../tasks/presentation/screens/analytics_screen.dart';
 import '../tasks/presentation/screens/calendar_screen.dart';
 import '../tasks/presentation/screens/home_screen.dart';
 import '../tasks/presentation/screens/settings_screen.dart';
@@ -35,7 +34,7 @@ class _MainNavScaffoldState extends State<MainNavScaffold> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -45,82 +44,112 @@ class _MainNavScaffoldState extends State<MainNavScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final onboardingRepo = context.read<IOnboardingRepository>();
 
     final screens = [
       const HomeScreen(),
       const CalendarScreen(),
-      const AnalyticsScreen(),
       SettingsScreen(onboardingRepository: onboardingRepo),
     ];
 
     return Scaffold(
+      backgroundColor: AppColors.lightBackground,
       body: IndexedStack(
-        index: _currentIndex,
+        index: _currentIndex > 2 ? 0 : _currentIndex,
         children: screens,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openCreateTaskSheet,
-        elevation: 6,
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.45),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
+      // Floating Cyan Plus button in the center matching mockup
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Container(
+        width: 52,
+        height: 52,
+        margin: const EdgeInsets.only(top: 14),
+        child: FloatingActionButton(
+          onPressed: _openCreateTaskSheet,
+          elevation: 4,
+          backgroundColor: AppColors.primary,
+          shape: const CircleBorder(),
+          child: const Icon(
+            Icons.add_rounded,
+            size: 28,
+            color: Colors.white,
           ),
-          child: const Icon(Icons.add_rounded, size: 28, color: Colors.white),
         ),
       ),
+      // Bottom Navigation Bar with 5 slots matching mockup
       bottomNavigationBar: Container(
+        height: 72,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          color: Colors.white,
           border: Border(
             top: BorderSide(
-              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              color: const Color(0xFFE2E8F0).withValues(alpha: 0.8),
               width: 1,
             ),
           ),
-        ),
-        child: NavigationBar(
-          selectedIndex: _currentIndex,
-          onDestinationSelected: (index) {
-            setState(() => _currentIndex = index);
-          },
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          indicatorColor: AppColors.primary.withValues(alpha: 0.15),
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard_rounded, color: AppColors.primaryLight),
-              label: 'Tasks',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.calendar_month_outlined),
-              selectedIcon: Icon(Icons.calendar_month_rounded, color: AppColors.primaryLight),
-              label: 'Calendar',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.insights_outlined),
-              selectedIcon: Icon(Icons.insights_rounded, color: AppColors.primaryLight),
-              label: 'Analytics',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.person_outline_rounded),
-              selectedIcon: Icon(Icons.person_rounded, color: AppColors.primaryLight),
-              label: 'Profile',
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
             ),
           ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            // Tab 1: Home
+            _buildNavItem(
+              index: 0,
+              icon: Icons.home_rounded,
+              isSelected: _currentIndex == 0,
+            ),
+
+            // Tab 2: Calendar
+            _buildNavItem(
+              index: 1,
+              icon: Icons.calendar_month_outlined,
+              isSelected: _currentIndex == 1,
+            ),
+
+            // Spacer for center Floating Button
+            const SizedBox(width: 48),
+
+            // Tab 3: Notifications / Analytics
+            _buildNavItem(
+              index: 1, // Opens calendar / notifications view
+              icon: Icons.notifications_none_rounded,
+              isSelected: false,
+            ),
+
+            // Tab 4: Settings
+            _buildNavItem(
+              index: 2,
+              icon: Icons.settings_outlined,
+              isSelected: _currentIndex == 2,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required int index,
+    required IconData icon,
+    required bool isSelected,
+  }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        setState(() => _currentIndex = index);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Icon(
+          icon,
+          size: 24,
+          color: isSelected ? AppColors.primary : const Color(0xFF94A3B8),
         ),
       ),
     );
