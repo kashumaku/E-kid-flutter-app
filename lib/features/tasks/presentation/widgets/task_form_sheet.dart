@@ -25,15 +25,12 @@ class _TaskFormSheetState extends State<TaskFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descController;
-  late TextEditingController _tagController;
   late TextEditingController _subtaskInputController;
-
   late TaskCategory _selectedCategory;
   late TaskPriority _selectedPriority;
   DateTime? _selectedDueDate;
   TimeOfDay? _selectedTime;
   List<String> _subtasks = [];
-  List<String> _tags = [];
 
   @override
   void initState() {
@@ -41,9 +38,7 @@ class _TaskFormSheetState extends State<TaskFormSheet> {
     final edit = widget.taskToEdit;
     _titleController = TextEditingController(text: edit?.title ?? '');
     _descController = TextEditingController(text: edit?.description ?? '');
-    _tagController = TextEditingController();
     _subtaskInputController = TextEditingController();
-
     _selectedCategory = edit?.category ?? TaskCategory.work;
     _selectedPriority = edit?.priority ?? TaskPriority.medium;
     _selectedDueDate = edit?.dueDate;
@@ -51,14 +46,12 @@ class _TaskFormSheetState extends State<TaskFormSheet> {
       _selectedTime = TimeOfDay.fromDateTime(_selectedDueDate!);
     }
     _subtasks = edit?.subtasks.map((s) => s.title).toList() ?? [];
-    _tags = List<String>.from(edit?.tags ?? []);
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
-    _tagController.dispose();
     _subtaskInputController.dispose();
     super.dispose();
   }
@@ -121,16 +114,6 @@ class _TaskFormSheetState extends State<TaskFormSheet> {
     }
   }
 
-  void _addTag() {
-    final text = _tagController.text.trim().replaceAll('#', '');
-    if (text.isNotEmpty && !_tags.contains(text)) {
-      setState(() {
-        _tags.add(text);
-        _tagController.clear();
-      });
-    }
-  }
-
   void _saveTask() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -143,7 +126,6 @@ class _TaskFormSheetState extends State<TaskFormSheet> {
         priority: _selectedPriority,
         dueDate: _selectedDueDate,
         clearDueDate: _selectedDueDate == null,
-        tags: _tags,
       );
       widget.provider.updateTask(updated);
     } else {
@@ -154,7 +136,6 @@ class _TaskFormSheetState extends State<TaskFormSheet> {
         category: _selectedCategory,
         priority: _selectedPriority,
         dueDate: _selectedDueDate,
-        tags: _tags,
         subtaskTitles: _subtasks,
       );
     }
@@ -465,51 +446,7 @@ class _TaskFormSheetState extends State<TaskFormSheet> {
                 const SizedBox(height: 20),
               ],
 
-              // Tags
-              const Text(
-                'Tags',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _tagController,
-                      onSubmitted: (_) => _addTag(),
-                      decoration: const InputDecoration(
-                        hintText: 'Add a tag (e.g. UX, Release)...',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton.filled(
-                    onPressed: _addTag,
-                    icon: const Icon(Icons.add, size: 18),
-                    style: IconButton.styleFrom(backgroundColor: AppColors.primary),
-                  ),
-                ],
-              ),
-              if (_tags.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: _tags.map((tag) {
-                    return Chip(
-                      label: Text('#$tag', style: const TextStyle(fontSize: 11)),
-                      deleteIcon: const Icon(Icons.close, size: 14),
-                      onDeleted: () {
-                        setState(() => _tags.remove(tag));
-                      },
-                      padding: EdgeInsets.zero,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    );
-                  }).toList(),
-                ),
-              ],
-              const SizedBox(height: 28),
+              const SizedBox(height: 12),
 
               // Submit Button
               SizedBox(

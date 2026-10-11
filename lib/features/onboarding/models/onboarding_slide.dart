@@ -25,14 +25,14 @@ class OnboardingSlide {
     OnboardingSlide(
       badge: 'SEAMLESS FLOW',
       title: 'Conquer Your Day With Precision',
-      subtitle: 'Organize high-impact goals into dynamic projects, actionable subtasks, and rich tags designed for maximum focus.',
+      subtitle: 'Organize high-impact goals into dynamic projects, actionable subtasks, and clean workflows designed for maximum focus.',
       graphicType: GraphicType.taskFlow,
       gradient: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
     ),
     OnboardingSlide(
       badge: 'SMART PRIORITIES',
       title: 'Never Miss Critical Deadlines',
-      subtitle: 'Intelligent urgent-to-low priority tagging and unified day scheduling keep you ahead of your most demanding commitments.',
+      subtitle: 'Intelligent urgent-to-low priority levels and unified day scheduling keep you ahead of your most demanding commitments.',
       graphicType: GraphicType.prioritySchedule,
       gradient: [Color(0xFF06B6D4), Color(0xFF3B82F6)],
     ),

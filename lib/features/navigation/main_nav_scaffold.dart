@@ -3,10 +3,11 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../onboarding/data/onboarding_repository.dart';
 import '../tasks/presentation/controllers/task_provider.dart';
+import '../tasks/presentation/screens/analytics_screen.dart';
 import '../tasks/presentation/screens/calendar_screen.dart';
 import '../tasks/presentation/screens/home_screen.dart';
 import '../tasks/presentation/screens/settings_screen.dart';
-import '../tasks/presentation/widgets/task_form_sheet.dart';
+import '../tasks/presentation/screens/task_form_screen.dart';
 
 class MainNavScaffold extends StatefulWidget {
   final int initialIndex;
@@ -29,114 +30,145 @@ class _MainNavScaffoldState extends State<MainNavScaffold> {
     _currentIndex = widget.initialIndex;
   }
 
-  void _openCreateTaskSheet() {
+  void _openCreateTaskScreen() {
     final provider = context.read<TaskProvider>();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TaskFormScreen(provider: provider),
       ),
-      builder: (ctx) => TaskFormSheet(provider: provider),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final onboardingRepo = context.read<IOnboardingRepository>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final screens = [
       const HomeScreen(),
       const CalendarScreen(),
+      const AnalyticsScreen(),
       SettingsScreen(onboardingRepository: onboardingRepo),
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.lightBackground,
+      extendBody: true, // Allows content to flow behind the floating dock
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       body: IndexedStack(
-        index: _currentIndex > 2 ? 0 : _currentIndex,
+        index: _currentIndex > 3 ? 0 : _currentIndex,
         children: screens,
       ),
-      // Floating Cyan Plus button in the center matching mockup
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Container(
-        width: 52,
-        height: 52,
-        margin: const EdgeInsets.only(top: 14),
-        child: FloatingActionButton(
-          onPressed: _openCreateTaskSheet,
-          elevation: 4,
-          backgroundColor: AppColors.primary,
-          shape: const CircleBorder(),
-          child: const Icon(
-            Icons.add_rounded,
-            size: 28,
-            color: Colors.white,
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+          height: 70,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : Colors.white,
+            borderRadius: BorderRadius.circular(35),
+            border: Border.all(
+              color: isDark
+                  ? const Color(0xFF334155)
+                  : Colors.white,
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: isDark ? 0.25 : 0.14),
+                blurRadius: 28,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ),
-      ),
-      // Bottom Navigation Bar with 5 slots matching mockup
-      bottomNavigationBar: Container(
-        height: 72,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            top: BorderSide(
-              color: const Color(0xFFE2E8F0).withValues(alpha: 0.8),
-              width: 1,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // 1. Home Tab
+              _buildFancyNavItem(
+                index: 0,
+                icon: Icons.home_rounded,
+                activeIcon: Icons.home_rounded,
+                label: 'Home',
+                isSelected: _currentIndex == 0,
+              ),
+
+              // 2. Calendar Tab
+              _buildFancyNavItem(
+                index: 1,
+                icon: Icons.calendar_month_outlined,
+                activeIcon: Icons.calendar_month_rounded,
+                label: 'Schedule',
+                isSelected: _currentIndex == 1,
+              ),
+
+              // 3. Center Elevated Floating Cyan Plus Action Button
+              _buildCenterActionButton(),
+
+              // 4. Analytics Tab (Insights & Notifications)
+              _buildFancyNavItem(
+                index: 2,
+                icon: Icons.insights_outlined,
+                activeIcon: Icons.insights_rounded,
+                label: 'Insights',
+                isSelected: _currentIndex == 2,
+              ),
+
+              // 5. Settings / Profile Tab
+              _buildFancyNavItem(
+                index: 3,
+                icon: Icons.settings_outlined,
+                activeIcon: Icons.settings_rounded,
+                label: 'Profile',
+                isSelected: _currentIndex == 3,
+              ),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            // Tab 1: Home
-            _buildNavItem(
-              index: 0,
-              icon: Icons.home_rounded,
-              isSelected: _currentIndex == 0,
-            ),
-
-            // Tab 2: Calendar
-            _buildNavItem(
-              index: 1,
-              icon: Icons.calendar_month_outlined,
-              isSelected: _currentIndex == 1,
-            ),
-
-            // Spacer for center Floating Button
-            const SizedBox(width: 48),
-
-            // Tab 3: Notifications / Analytics
-            _buildNavItem(
-              index: 1, // Opens calendar / notifications view
-              icon: Icons.notifications_none_rounded,
-              isSelected: false,
-            ),
-
-            // Tab 4: Settings
-            _buildNavItem(
-              index: 2,
-              icon: Icons.settings_outlined,
-              isSelected: _currentIndex == 2,
-            ),
-          ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem({
+  Widget _buildCenterActionButton() {
+    return GestureDetector(
+      onTap: _openCreateTaskScreen,
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColors.primary, AppColors.primaryDark],
+          ),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.5),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.add_rounded,
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFancyNavItem({
     required int index,
     required IconData icon,
+    required IconData activeIcon,
+    required String label,
     required bool isSelected,
   }) {
     return GestureDetector(
@@ -144,12 +176,41 @@ class _MainNavScaffoldState extends State<MainNavScaffold> {
       onTap: () {
         setState(() => _currentIndex = index);
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Icon(
-          icon,
-          size: 24,
-          color: isSelected ? AppColors.primary : const Color(0xFF94A3B8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedScale(
+              scale: isSelected ? 1.15 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutBack,
+              child: Icon(
+                isSelected ? activeIcon : icon,
+                size: 22,
+                color: isSelected ? AppColors.primary : const Color(0xFF94A3B8),
+              ),
+            ),
+            const SizedBox(height: 3),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: isSelected ? 4 : 0,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primary : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
         ),
       ),
     );

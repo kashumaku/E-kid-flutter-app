@@ -1,8 +1,10 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'ApexTask';
+  static const String appName = "E'kid";
   static const String appTagline = 'Elevate Your Productivity';
+  static const String appIconAsset = 'assets/icons/app_icon.png';
+  static const String appIconTransparentAsset = 'assets/icons/app_icon_transparent.png';
 
   // Storage Keys
   static const String keyHasSeenOnboarding = 'apex_task_has_seen_onboarding';

@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
+import 'features/auth/data/auth_repository.dart';
+import 'features/auth/presentation/controllers/auth_provider.dart';
 import 'features/navigation/main_nav_scaffold.dart';
 import 'features/onboarding/data/onboarding_repository.dart';
 import 'features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -28,19 +30,24 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
 
   // Initialize repositories (Clean Architecture Data layer)
-  final ITaskRepository taskRepository = LocalStorageTaskRepository(prefs);
+  final ITaskRepository taskRepository = SqliteTaskRepository();
   final IOnboardingRepository onboardingRepository = OnboardingRepository(prefs);
+  final IAuthRepository authRepository = AuthRepository(prefs);
 
   runApp(
     MultiProvider(
       providers: [
         Provider<ITaskRepository>.value(value: taskRepository),
         Provider<IOnboardingRepository>.value(value: onboardingRepository),
+        Provider<IAuthRepository>.value(value: authRepository),
         ChangeNotifierProvider<ThemeProvider>(
           create: (_) => ThemeProvider(prefs),
         ),
         ChangeNotifierProvider<TaskProvider>(
           create: (_) => TaskProvider(taskRepository),
+        ),
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(authRepository),
         ),
       ],
       child: ApexTaskApp(
@@ -62,6 +69,10 @@ class ApexTaskApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final onboardingRepo = context.read<IOnboardingRepository>();
+    final authProvider = context.watch<AuthProvider?>();
+
+    final isLoggedIn = (authProvider != null && authProvider.isAuthenticated) ||
+        (authProvider == null && hasCompletedOnboarding);
 
     return MaterialApp(
       title: AppConstants.appName,
@@ -69,7 +80,7 @@ class ApexTaskApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
-      home: hasCompletedOnboarding
+      home: isLoggedIn
           ? const MainNavScaffold()
           : OnboardingScreen(onboardingRepository: onboardingRepo),
     );

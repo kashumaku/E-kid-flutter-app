@@ -95,7 +95,7 @@ class SearchFilterBar extends StatelessWidget {
                   onChanged: (val) => provider.setSearchQuery(val),
                   style: const TextStyle(fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: 'Search tasks, tags, notes...',
+                    hintText: 'Search tasks...',
                     prefixIcon: const Icon(Icons.search_rounded, size: 20),
                     suffixIcon: searchController.text.isNotEmpty
                         ? IconButton(

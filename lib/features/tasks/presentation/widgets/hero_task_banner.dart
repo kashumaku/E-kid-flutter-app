@@ -14,8 +14,9 @@ class HeroTaskBannerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasTasks = provider.tasks.isNotEmpty;
     final completionPct = (provider.completionRate * 100).toInt();
-    final displayPct = completionPct == 0 ? 95 : completionPct; // Matches 95% in mockup
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       width: double.infinity,
@@ -23,9 +24,10 @@ class HeroTaskBannerCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.heroDark,
         borderRadius: BorderRadius.circular(26),
+        border: isDark ? Border.all(color: const Color(0xFF334155), width: 1) : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -47,14 +49,18 @@ class HeroTaskBannerCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Left Content: Title & "View Task" button
+              // Left Content: Title & Action button
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Your daily task\nalmost done!',
-                      style: TextStyle(
+                    Text(
+                      !hasTasks
+                          ? 'Your daily plan\nstarts here!'
+                          : (completionPct == 100
+                              ? 'All daily tasks\ncompleted!'
+                              : 'Your daily task\nalmost done!'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -63,7 +69,7 @@ class HeroTaskBannerCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // "View Task" button matching mockup
+                    // Action button
                     GestureDetector(
                       onTap: onViewTask,
                       child: Container(
@@ -72,9 +78,9 @@ class HeroTaskBannerCard extends StatelessWidget {
                           color: AppColors.primary,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Text(
-                          'View Task',
-                          style: TextStyle(
+                        child: Text(
+                          !hasTasks ? 'Create Task' : 'View Task',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -96,7 +102,7 @@ class HeroTaskBannerCard extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     CircularProgressIndicator(
-                      value: displayPct / 100.0,
+                      value: hasTasks ? (completionPct / 100.0) : 0.0,
                       strokeWidth: 6,
                       backgroundColor: const Color(0xFF334155),
                       valueColor: const AlwaysStoppedAnimation<Color>(
@@ -105,7 +111,7 @@ class HeroTaskBannerCard extends StatelessWidget {
                       strokeCap: StrokeCap.round,
                     ),
                     Text(
-                      '$displayPct%',
+                      '$completionPct%',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,

@@ -17,18 +17,20 @@ class UpcomingTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: const Color(0xFFF1F5F9),
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -49,7 +51,7 @@ class UpcomingTaskCard extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE0F7FA),
+                    color: isDark ? const Color(0xFF0F172A) : const Color(0xFFE0F7FA),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -69,10 +71,10 @@ class UpcomingTaskCard extends StatelessWidget {
                         task.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1E232E),
+                          color: isDark ? AppColors.darkTextPrimary : const Color(0xFF1E232E),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -80,10 +82,10 @@ class UpcomingTaskCard extends StatelessWidget {
                         task.dueDate != null
                             ? DateFormatter.formatDate(task.dueDate!)
                             : 'No date assigned',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF94A3B8),
+                          color: isDark ? AppColors.darkTextSecondary : const Color(0xFF94A3B8),
                         ),
                       ),
                     ],
@@ -92,9 +94,9 @@ class UpcomingTaskCard extends StatelessWidget {
 
                 // Right 3 dots icon
                 IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.more_vert_rounded,
-                    color: Color(0xFF94A3B8),
+                    color: isDark ? AppColors.darkTextSecondary : const Color(0xFF94A3B8),
                     size: 20,
                   ),
                   onPressed: onMore ?? onTap,

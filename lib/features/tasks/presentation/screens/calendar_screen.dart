@@ -6,7 +6,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../controllers/task_provider.dart';
 import '../widgets/task_card.dart';
-import '../widgets/task_form_sheet.dart';
+import 'task_form_screen.dart';
 import 'task_detail_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -27,14 +27,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   void _openCreateTask(BuildContext context, TaskProvider provider) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TaskFormScreen(
+          provider: provider,
+          initialDueDate: _selectedDate,
+        ),
       ),
-      builder: (ctx) => TaskFormSheet(provider: provider),
     );
   }
 

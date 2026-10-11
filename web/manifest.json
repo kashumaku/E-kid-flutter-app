@@ -1,11 +1,11 @@
 {
-    "name": "my_flutter_app",
-    "short_name": "my_flutter_app",
+    "name": "E'kid",
+    "short_name": "E'kid",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FF6B4A",
+    "theme_color": "#FF6B4A",
+    "description": "E'kid - Elevate Your Productivity",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

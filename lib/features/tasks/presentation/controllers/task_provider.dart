@@ -17,6 +17,20 @@ class TaskProvider extends ChangeNotifier {
   TaskFilter _selectedFilter = TaskFilter.all;
   TaskCategory? _selectedCategory;
   TaskSortOption _sortOption = TaskSortOption.dueDateAsc;
+  bool _isDisposed = false;
+
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
 
   TaskProvider(this._repository) {
     loadTasks();
@@ -38,8 +52,7 @@ class TaskProvider extends ChangeNotifier {
         final query = _searchQuery.toLowerCase();
         final matchesTitle = task.title.toLowerCase().contains(query);
         final matchesDesc = task.description.toLowerCase().contains(query);
-        final matchesTag = task.tags.any((t) => t.toLowerCase().contains(query));
-        if (!matchesTitle && !matchesDesc && !matchesTag) return false;
+        if (!matchesTitle && !matchesDesc) return false;
       }
 
       // 2. Category Filter
@@ -143,7 +156,9 @@ class TaskProvider extends ChangeNotifier {
   Future<void> loadTasks() async {
     _isLoading = true;
     notifyListeners();
-    _tasks = await _repository.getTasks();
+    final tasks = await _repository.getTasks();
+    if (_isDisposed) return;
+    _tasks = tasks;
     _isLoading = false;
     notifyListeners();
   }
@@ -176,7 +191,7 @@ class TaskProvider extends ChangeNotifier {
 
     _tasks.insert(0, newTask);
     notifyListeners();
-    await _repository.saveTasks(_tasks);
+    await _repository.addTask(newTask);
   }
 
   Future<void> updateTask(Task updatedTask) async {
@@ -184,14 +199,14 @@ class TaskProvider extends ChangeNotifier {
     if (index != -1) {
       _tasks[index] = updatedTask;
       notifyListeners();
-      await _repository.saveTasks(_tasks);
+      await _repository.updateTask(updatedTask);
     }
   }
 
   Future<void> deleteTask(String taskId) async {
     _tasks.removeWhere((t) => t.id == taskId);
     notifyListeners();
-    await _repository.saveTasks(_tasks);
+    await _repository.deleteTask(taskId);
   }
 
   Future<void> toggleTaskCompletion(String taskId) async {
@@ -205,14 +220,16 @@ class TaskProvider extends ChangeNotifier {
           ? task.subtasks.map((s) => s.copyWith(isCompleted: true)).toList()
           : task.subtasks;
 
-      _tasks[index] = task.copyWith(
+      final updatedTask = task.copyWith(
         isCompleted: newStatus,
         completedAt: newStatus ? DateTime.now() : null,
         clearCompletedAt: !newStatus,
         subtasks: updatedSubtasks,
       );
+
+      _tasks[index] = updatedTask;
       notifyListeners();
-      await _repository.saveTasks(_tasks);
+      await _repository.updateTask(updatedTask);
     }
   }
 
@@ -230,13 +247,36 @@ class TaskProvider extends ChangeNotifier {
       final allCompleted = updatedSubtasks.isNotEmpty &&
           updatedSubtasks.every((s) => s.isCompleted);
 
-      _tasks[taskIndex] = task.copyWith(
+      final updatedTask = task.copyWith(
         subtasks: updatedSubtasks,
-        isCompleted: allCompleted ? true : task.isCompleted,
-        completedAt: allCompleted ? (task.completedAt ?? DateTime.now()) : task.completedAt,
+        isCompleted: updatedSubtasks.isNotEmpty ? allCompleted : task.isCompleted,
+        completedAt: allCompleted ? (task.completedAt ?? DateTime.now()) : null,
+        clearCompletedAt: !allCompleted,
       );
+
+      _tasks[taskIndex] = updatedTask;
       notifyListeners();
-      await _repository.saveTasks(_tasks);
+      await _repository.updateTask(updatedTask);
+    }
+  }
+
+  Future<void> updateSubTask(String taskId, String subtaskId, String newTitle) async {
+    final trimmed = newTitle.trim();
+    if (trimmed.isEmpty) return;
+    final taskIndex = _tasks.indexWhere((t) => t.id == taskId);
+    if (taskIndex != -1) {
+      final task = _tasks[taskIndex];
+      final updatedSubtasks = task.subtasks.map((s) {
+        if (s.id == subtaskId) {
+          return s.copyWith(title: trimmed);
+        }
+        return s;
+      }).toList();
+
+      final updatedTask = task.copyWith(subtasks: updatedSubtasks);
+      _tasks[taskIndex] = updatedTask;
+      notifyListeners();
+      await _repository.updateTask(updatedTask);
     }
   }
 
@@ -248,9 +288,10 @@ class TaskProvider extends ChangeNotifier {
       final newSubtask = SubTask(id: _uuid.v4(), title: subtaskTitle.trim());
       final updated = List<SubTask>.from(task.subtasks)..add(newSubtask);
 
-      _tasks[taskIndex] = task.copyWith(subtasks: updated);
+      final updatedTask = task.copyWith(subtasks: updated);
+      _tasks[taskIndex] = updatedTask;
       notifyListeners();
-      await _repository.saveTasks(_tasks);
+      await _repository.updateTask(updatedTask);
     }
   }
 
@@ -260,9 +301,10 @@ class TaskProvider extends ChangeNotifier {
       final task = _tasks[taskIndex];
       final updated = task.subtasks.where((s) => s.id != subtaskId).toList();
 
-      _tasks[taskIndex] = task.copyWith(subtasks: updated);
+      final updatedTask = task.copyWith(subtasks: updated);
+      _tasks[taskIndex] = updatedTask;
       notifyListeners();
-      await _repository.saveTasks(_tasks);
+      await _repository.updateTask(updatedTask);
     }
   }
 
@@ -290,11 +332,12 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> resetToSeed() async {
+  Future<void> clearAllTasks() async {
     _isLoading = true;
     notifyListeners();
-    await _repository.resetToDefaultSeed();
-    _tasks = await _repository.getTasks();
+    await _repository.clearAllTasks();
+    if (_isDisposed) return;
+    _tasks = [];
     _isLoading = false;
     notifyListeners();
   }

@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary Cyan / Teal Brand Colors
-  static const Color primary = Color(0xFF00B4D8); // Vibrant Cyan
-  static const Color primaryLight = Color(0xFF48CAE4);
-  static const Color primaryDark = Color(0xFF0077B6);
-  static const Color secondary = Color(0xFFFF6B4A); // Coral / Orange
+  // Primary Brand Color (Coral / Sunset - matching the signup and signin buttons)
+  static const Color primary = Color(0xFFFF6B4A); // Vibrant Coral / Sunset
+  static const Color primaryLight = Color(0xFFFF8A65);
+  static const Color primaryDark = Color(0xFFF05330);
+  static const Color secondary = Color(0xFF00B4D8); // Vibrant Cyan
+  static const Color secondaryLight = Color(0xFF48CAE4);
+  static const Color secondaryDark = Color(0xFF0077B6);
   static const Color accent = Color(0xFF8B5CF6); // Purple
 
   // Feature Cards from Mockup
@@ -66,7 +68,7 @@ class AppColors {
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF00B4D8), Color(0xFF0096C7)],
+    colors: [Color(0xFFFF6B4A), Color(0xFFF05330)],
   );
 
   static const LinearGradient coralGradient = LinearGradient(
