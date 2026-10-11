@@ -41,6 +41,7 @@ class AppDatabase {
         version: 1,
         onCreate: _createDB,
         onConfigure: _configureDB,
+        onOpen: _onOpenDB,
       ),
     );
   }
@@ -75,6 +76,8 @@ class AppDatabase {
       )
     ''');
   }
+
+  Future<void> _onOpenDB(Database db) async {}
 
   Future<void> close() async {
     final db = _database;

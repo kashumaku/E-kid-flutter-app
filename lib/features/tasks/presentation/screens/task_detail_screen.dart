@@ -49,27 +49,100 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
-  void _showEditSubtaskDialog(String taskId, String subtaskId, String currentTitle) {
+  void _showAddSubtaskDialog(String taskId, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Add Sub Task',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
+            color: isDark ? Colors.white : const Color(0xFF1E232E),
+          ),
+        ),
+        content: TextField(
+          controller: _addSubtaskController,
+          autofocus: true,
+          style: TextStyle(
+            color: isDark ? Colors.white : const Color(0xFF1E232E),
+            fontWeight: FontWeight.w600,
+          ),
+          decoration: InputDecoration(
+            hintText: 'Subtask title',
+            hintStyle: TextStyle(
+              color: isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8),
+            ),
+            filled: true,
+            fillColor: isDark ? AppColors.darkSurfaceVariant : const Color(0xFFF8FAFC),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: isDark ? AppColors.darkBorder : const Color(0xFFE2E8F0)),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: isDark ? AppColors.darkTextSecondary : const Color(0xFF64748B)),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              _handleAddSubtask(taskId);
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditSubtaskDialog(String taskId, String subtaskId, String currentTitle, bool isDark) {
     final controller = TextEditingController(text: currentTitle);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
+        title: Text(
           'Update Checklist Item',
-          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17),
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
+            color: isDark ? Colors.white : const Color(0xFF1E232E),
+          ),
         ),
         content: TextField(
           controller: controller,
           autofocus: true,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: isDark ? Colors.white : const Color(0xFF1E232E),
+          ),
           decoration: InputDecoration(
             hintText: 'Checklist item title',
+            hintStyle: TextStyle(
+              color: isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8),
+            ),
             filled: true,
-            fillColor: const Color(0xFFF8FAFC),
+            fillColor: isDark ? AppColors.darkSurfaceVariant : const Color(0xFFF8FAFC),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              borderSide: BorderSide(
+                color: isDark ? AppColors.darkBorder : const Color(0xFFE2E8F0),
+              ),
             ),
           ),
           onSubmitted: (val) {
@@ -83,7 +156,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextSecondary : const Color(0xFF64748B),
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -107,6 +185,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? AppColors.darkBackground : AppColors.lightBackground;
+    final textPrimary = isDark ? AppColors.darkTextPrimary : const Color(0xFF1E232E);
+    final textSecondary = isDark ? AppColors.darkTextSecondary : const Color(0xFF64748B);
+    final backBtnBg = isDark ? AppColors.darkCard : const Color(0xFFF1F5F9);
+    final backBtnIcon = isDark ? Colors.white : const Color(0xFF1E232E);
+    final borderColor = isDark ? AppColors.darkBorder : const Color(0xFFE2E8F0);
+
     return ListenableBuilder(
       listenable: widget.provider,
       builder: (context, _) {
@@ -115,8 +201,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
         if (taskIndex == -1) {
           return Scaffold(
-            appBar: AppBar(),
-            body: const Center(child: Text('Task not found')),
+            backgroundColor: bgColor,
+            appBar: AppBar(backgroundColor: Colors.transparent),
+            body: Center(
+              child: Text(
+                'Task not found',
+                style: TextStyle(color: textPrimary, fontWeight: FontWeight.w700),
+              ),
+            ),
           );
         }
 
@@ -129,9 +221,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             : '9:00 AM-12:00 PM';
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: bgColor,
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.transparent,
             elevation: 0,
             centerTitle: true,
             leading: Padding(
@@ -142,35 +234,42 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   child: Container(
                     width: 38,
                     height: 38,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF1F5F9),
+                    decoration: BoxDecoration(
+                      color: backBtnBg,
                       shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isDark ? AppColors.darkBorder : Colors.transparent,
+                      ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.arrow_back_ios_new_rounded,
                       size: 16,
-                      color: Color(0xFF1E232E),
+                      color: backBtnIcon,
                     ),
                   ),
                 ),
               ),
             ),
-            title: const Text(
+            title: Text(
               'Task Details',
               style: TextStyle(
-                color: Color(0xFF1E232E),
+                color: textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
             ),
             actions: [
               PopupMenuButton<String>(
-                icon: const Icon(
+                icon: Icon(
                   Icons.more_vert_rounded,
-                  color: Color(0xFF1E232E),
+                  color: isDark ? Colors.white70 : const Color(0xFF1E232E),
                 ),
+                color: isDark ? AppColors.darkCard : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(
+                    color: isDark ? AppColors.darkBorder : Colors.transparent,
+                  ),
                 ),
                 onSelected: (val) {
                   if (val == 'edit') {
@@ -231,16 +330,20 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   // Top Date & Time Pills
                   Row(
                     children: [
-                      _buildPill(dateFormatted),
+                      _buildPill(dateFormatted, isDark),
                       const SizedBox(width: 10),
-                      _buildPill(timeFormatted),
+                      _buildPill(timeFormatted, isDark),
                       const Spacer(),
                       // Category badge
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: task.category.color.withValues(alpha: 0.12),
+                          color: task.category.color.withValues(alpha: isDark ? 0.20 : 0.12),
                           borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: task.category.color.withValues(alpha: isDark ? 0.35 : 0.20),
+                            width: 0.8,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -263,13 +366,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Task Title matching Screen 3 mockup
+                  // Task Title
                   Text(
                     task.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF1E232E),
+                      color: textPrimary,
                       height: 1.25,
                       letterSpacing: -0.3,
                     ),
@@ -281,8 +384,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: isDark ? AppColors.darkCard : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: borderColor),
                     ),
                     child: const TaskPieChart(),
                   ),
@@ -291,12 +395,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
                   // Section: Description
                   if (task.description.isNotEmpty) ...[
-                    const Text(
+                    Text(
                       'Description',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E232E),
+                        color: textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -308,10 +412,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       },
                       child: RichText(
                         text: TextSpan(
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             height: 1.5,
-                            color: Color(0xFF64748B),
+                            color: textSecondary,
                           ),
                           children: [
                             TextSpan(
@@ -322,11 +426,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                       : task.description),
                             ),
                             if (task.description.length > 95 && !_isDescriptionExpanded)
-                              const TextSpan(
+                              TextSpan(
                                 text: 'See more',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1E232E),
+                                  color: isDark ? AppColors.primary : const Color(0xFF1E232E),
                                 ),
                               ),
                           ],
@@ -342,12 +446,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     children: [
                       Row(
                         children: [
-                          const Text(
+                          Text(
                             'Sub Task',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E232E),
+                              color: textPrimary,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -355,7 +459,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.12),
+                                color: AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.12),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
@@ -372,32 +476,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                       IconButton(
                         icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary),
                         tooltip: 'Add subtask',
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('Add Sub Task'),
-                              content: TextField(
-                                controller: _addSubtaskController,
-                                autofocus: true,
-                                decoration: const InputDecoration(hintText: 'Subtask title'),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(ctx).pop(),
-                                  child: const Text('Cancel'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _handleAddSubtask(task.id);
-                                    Navigator.of(ctx).pop();
-                                  },
-                                  child: const Text('Add'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                        onPressed: () => _showAddSubtaskDialog(task.id, isDark),
                       ),
                     ],
                   ),
@@ -407,50 +486,22 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   // Subtasks list with checklist update capability
                   if (task.subtasks.isEmpty) ...[
                     GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text('Add Sub Task'),
-                            content: TextField(
-                              controller: _addSubtaskController,
-                              autofocus: true,
-                              decoration: const InputDecoration(hintText: 'Subtask title'),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(ctx).pop(),
-                                child: const Text('Cancel'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  _handleAddSubtask(task.id);
-                                  Navigator.of(ctx).pop();
-                                },
-                                child: const Text('Add'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                      onTap: () => _showAddSubtaskDialog(task.id, isDark),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
+                          color: isDark ? AppColors.darkCard : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: const Color(0xFFE2E8F0),
-                            style: BorderStyle.solid,
-                          ),
+                          border: Border.all(color: borderColor),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 20),
-                            SizedBox(width: 10),
+                            const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 20),
+                            const SizedBox(width: 10),
                             Text(
                               'Tap to add your first subtask item',
                               style: TextStyle(
-                                color: Color(0xFF64748B),
+                                color: textSecondary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -467,6 +518,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         title: subtask.title,
                         isCompleted: subtask.isCompleted,
                         dateText: dateFormatted,
+                        isDark: isDark,
                       );
                     }),
                     const SizedBox(height: 8),
@@ -474,9 +526,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: isDark ? AppColors.darkCard : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: borderColor),
                       ),
                       child: Row(
                         children: [
@@ -486,13 +538,20 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             child: TextField(
                               controller: _addSubtaskController,
                               onSubmitted: (_) => _handleAddSubtask(task.id),
-                              style: const TextStyle(fontSize: 13, color: Color(0xFF1E232E), fontWeight: FontWeight.w600),
-                              decoration: const InputDecoration(
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              decoration: InputDecoration(
                                 hintText: 'Add new checklist item...',
-                                hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                                hintStyle: TextStyle(
+                                  color: isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8),
+                                  fontSize: 13,
+                                ),
                                 border: InputBorder.none,
                                 isDense: true,
-                                contentPadding: EdgeInsets.symmetric(vertical: 10),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 10),
                               ),
                             ),
                           ),
@@ -516,19 +575,22 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Widget _buildPill(String text) {
+  Widget _buildPill(String text, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: isDark ? AppColors.darkSurfaceVariant : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : Colors.transparent,
+        ),
       ),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Color(0xFF64748B),
+          color: isDark ? AppColors.darkTextSecondary : const Color(0xFF64748B),
         ),
       ),
     );
@@ -540,19 +602,34 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     required String title,
     required bool isCompleted,
     required String dateText,
+    required bool isDark,
   }) {
+    final cardBg = isDark ? AppColors.darkCard : Colors.white;
+    final itemBorder = isDark
+        ? (isCompleted ? AppColors.primary.withValues(alpha: 0.35) : AppColors.darkBorder)
+        : (isCompleted ? AppColors.primary.withValues(alpha: 0.3) : const Color(0xFFF1F5F9));
+    final titleColor = isCompleted
+        ? (isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8))
+        : (isDark ? AppColors.darkTextPrimary : const Color(0xFF1E232E));
+    final checkboxBorder = isCompleted
+        ? AppColors.primary
+        : (isDark ? Colors.white24 : const Color(0xFFCBD5E1));
+    final checkboxBg = isCompleted
+        ? (isDark ? AppColors.primary.withValues(alpha: 0.25) : const Color(0xFFE0F7FA))
+        : Colors.transparent;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isCompleted ? AppColors.primary.withValues(alpha: 0.3) : const Color(0xFFF1F5F9),
+          color: itemBorder,
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -573,10 +650,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: isCompleted ? const Color(0xFFE0F7FA) : Colors.transparent,
+                  color: checkboxBg,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isCompleted ? AppColors.primary : const Color(0xFFCBD5E1),
+                    color: checkboxBorder,
                     width: 1.5,
                   ),
                 ),
@@ -596,7 +673,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => _showEditSubtaskDialog(task.id, subtaskId, title),
+                onTap: () => _showEditSubtaskDialog(task.id, subtaskId, title, isDark),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -608,27 +685,27 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: isCompleted ? const Color(0xFF94A3B8) : const Color(0xFF1E232E),
+                              color: titleColor,
                               decoration: isCompleted ? TextDecoration.lineThrough : null,
-                              decorationColor: const Color(0xFF94A3B8),
+                              decorationColor: isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8),
                             ),
                           ),
                         ),
                         const SizedBox(width: 6),
-                        const Icon(
+                        Icon(
                           Icons.edit_outlined,
                           size: 15,
-                          color: Color(0xFF94A3B8),
+                          color: isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8),
                         ),
                       ],
                     ),
                     const SizedBox(height: 3),
                     Text(
                       dateText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF94A3B8),
+                        color: isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8),
                       ),
                     ),
                   ],
@@ -645,22 +722,26 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               ),
               tooltip: 'Edit Item',
               visualDensity: VisualDensity.compact,
-              onPressed: () => _showEditSubtaskDialog(task.id, subtaskId, title),
+              onPressed: () => _showEditSubtaskDialog(task.id, subtaskId, title, isDark),
             ),
 
             // Right 3 dots menu with Mark Complete & Delete subtask options
             PopupMenuButton<String>(
-              icon: const Icon(
+              icon: Icon(
                 Icons.more_vert_rounded,
                 size: 20,
-                color: Color(0xFF94A3B8),
+                color: isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8),
               ),
+              color: isDark ? AppColors.darkCard : Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
+                side: BorderSide(
+                  color: isDark ? AppColors.darkBorder : Colors.transparent,
+                ),
               ),
               onSelected: (val) {
                 if (val == 'edit') {
-                  _showEditSubtaskDialog(task.id, subtaskId, title);
+                  _showEditSubtaskDialog(task.id, subtaskId, title, isDark);
                 } else if (val == 'toggle') {
                   widget.provider.toggleSubTask(task.id, subtaskId);
                 } else if (val == 'delete') {

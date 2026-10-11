@@ -990,11 +990,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.accent,
                     ),
                     title: 'Theme Interface',
-                    subtitle: themeProvider.themeMode == ThemeMode.dark
-                        ? 'Obsidian Dark'
-                        : themeProvider.themeMode == ThemeMode.light
-                            ? 'Clarity Light'
-                            : 'Follow System',
                     trailing: SegmentedButton<ThemeMode>(
                       showSelectedIcon: false,
                       style: SegmentedButton.styleFrom(
@@ -1029,7 +1024,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.primary,
                     ),
                     title: 'Default Task Priority',
-                    subtitle: 'Auto-assigned when creating tasks',
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
@@ -1061,7 +1055,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.secondary,
                     ),
                     title: 'Compact Feed Density',
-                    subtitle: 'Condense task cards to display more on-screen',
                     trailing: Switch.adaptive(
                       value: _compactViewEnabled,
                       activeTrackColor: AppColors.primary,
@@ -1093,7 +1086,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.warning,
                     ),
                     title: 'Due Date Reminders',
-                    subtitle: 'Push alerts for upcoming deadlines',
                     trailing: Switch.adaptive(
                       value: _dueRemindersEnabled,
                       activeTrackColor: AppColors.primary,
@@ -1110,7 +1102,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Color(0xFF6366F1),
                     ),
                     title: 'Morning Focus Digest',
-                    subtitle: '8:00 AM summary briefing of daily priorities',
                     trailing: Switch.adaptive(
                       value: _dailyDigestEnabled,
                       activeTrackColor: AppColors.primary,
@@ -1127,7 +1118,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Color(0xFF14B8A6),
                     ),
                     title: 'Tactile Haptic Feedback',
-                    subtitle: 'Micro-vibrations on checklist ticks & touches',
                     trailing: Switch.adaptive(
                       value: _hapticsEnabled,
                       activeTrackColor: AppColors.primary,
@@ -1159,7 +1149,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Color(0xFF3B82F6),
                     ),
                     title: 'Profile Credentials',
-                    subtitle: 'Update full name and contact phone number',
                     onTap: () => _showEditProfileModal(context, authProvider),
                   ),
                   const Divider(height: 1),
@@ -1169,7 +1158,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.success,
                     ),
                     title: 'Biometric App Lock',
-                    subtitle: 'Require Face ID / Fingerprint on launch',
                     trailing: Switch.adaptive(
                       value: _biometricsEnabled,
                       activeTrackColor: AppColors.primary,
@@ -1186,7 +1174,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Color(0xFFA855F7),
                     ),
                     title: 'Active Device Session',
-                    subtitle: 'Apple Ecosystem • Primary Workstation',
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
@@ -1232,7 +1219,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Color(0xFF06B6D4),
                     ),
                     title: 'Export & Backup Vault',
-                    subtitle: 'Generate formatted JSON of all local SQLite tasks',
                     onTap: () => _showExportDataModal(context, taskProvider),
                   ),
                   const Divider(height: 1),
@@ -1242,7 +1228,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.secondary,
                     ),
                     title: 'Replay Onboarding Tour',
-                    subtitle: 'View the interactive product onboarding again',
                     onTap: () {
                       _triggerHaptic();
                       Navigator.of(context).push(
@@ -1262,7 +1247,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Color(0xFF10B981),
                     ),
                     title: 'Zero-Telemetry Pledge',
-                    subtitle: '100% on-device SQLite • Zero third-party trackers',
                     onTap: () => _showPrivacyPledgeModal(context),
                   ),
                   const Divider(height: 1),
@@ -1272,7 +1256,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.error,
                     ),
                     title: 'Clear All Tasks',
-                    subtitle: 'Permanently wipe local SQLite database',
                     titleColor: AppColors.error,
                     trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.error),
                     onTap: () => _showClearTasksConfirmation(context, taskProvider),
@@ -1299,7 +1282,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.primary,
                     ),
                     title: 'About E\'kid',
-                    subtitle: 'Version 1.0.0 • Product overview & release notes',
                     onTap: () => _showAboutModal(context),
                   ),
                   const Divider(height: 1),
@@ -1309,7 +1291,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.warning,
                     ),
                     title: 'Workflow & Gestures',
-                    subtitle: 'Tips for checklists, shortcuts, and focus streaks',
                     onTap: () => _showGestureGuideModal(context),
                   ),
                   const Divider(height: 1),
@@ -1319,7 +1300,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Color(0xFFEC4899),
                     ),
                     title: 'Recommend E\'kid',
-                    subtitle: 'Share your flow with colleagues & friends',
                     onTap: () {
                       _triggerHaptic();
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -1352,7 +1332,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.error,
                     ),
                     title: 'Log Out',
-                    subtitle: 'Safely terminate session on this device',
                     titleColor: AppColors.error,
                     trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.error),
                     onTap: () => _showLogoutConfirmation(context, authProvider),
@@ -1573,7 +1552,6 @@ class _AbstractSectionHeader extends StatelessWidget {
 class _AbstractSettingTile extends StatelessWidget {
   final Widget leading;
   final String title;
-  final String? subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
   final Color? titleColor;
@@ -1581,7 +1559,6 @@ class _AbstractSettingTile extends StatelessWidget {
   const _AbstractSettingTile({
     required this.leading,
     required this.title,
-    this.subtitle,
     this.trailing,
     this.onTap,
     this.titleColor,
@@ -1591,7 +1568,7 @@ class _AbstractSettingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
       leading: leading,
       title: Text(
         title,
@@ -1601,15 +1578,6 @@ class _AbstractSettingTile extends StatelessWidget {
           color: titleColor ?? (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
         ),
       ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-              ),
-            )
-          : null,
       trailing: trailing ??
           Icon(
             Icons.chevron_right_rounded,

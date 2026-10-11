@@ -96,7 +96,7 @@ class _MainNavScaffoldState extends State<MainNavScaffold> {
                 isSelected: _currentIndex == 0,
               ),
 
-              // 2. Calendar Tab
+              // 2. Schedule Tab
               _buildFancyNavItem(
                 index: 1,
                 icon: Icons.calendar_month_outlined,
@@ -105,15 +105,15 @@ class _MainNavScaffoldState extends State<MainNavScaffold> {
                 isSelected: _currentIndex == 1,
               ),
 
-              // 3. Center Elevated Floating Cyan Plus Action Button
+              // 3. Center Elevated Floating Coral Plus Action Button
               _buildCenterActionButton(),
 
-              // 4. Analytics Tab (Insights & Notifications)
+              // 4. Analytics Tab
               _buildFancyNavItem(
                 index: 2,
-                icon: Icons.insights_outlined,
-                activeIcon: Icons.insights_rounded,
-                label: 'Insights',
+                icon: Icons.bar_chart_rounded,
+                activeIcon: Icons.bar_chart_rounded,
+                label: 'Analytics',
                 isSelected: _currentIndex == 2,
               ),
 

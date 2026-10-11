@@ -59,6 +59,7 @@ class _LegendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Container(
@@ -73,10 +74,10 @@ class _LegendItem extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF64748B),
+              color: isDark ? AppColors.darkTextSecondary : const Color(0xFF64748B),
             ),
           ),
         ),

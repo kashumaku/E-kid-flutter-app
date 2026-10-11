@@ -91,6 +91,8 @@ void main() {
     expect(find.text('Clear All Tasks'), findsOneWidget);
 
     // 6. Test Interactive Modal: Export & Backup Vault
+    await tester.ensureVisible(find.text('Export & Backup Vault'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Export & Backup Vault'));
     await tester.pumpAndSettle();
 
@@ -103,6 +105,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // 7. Test Interactive Modal: Zero-Telemetry Pledge
+    await tester.ensureVisible(find.text('Zero-Telemetry Pledge'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Zero-Telemetry Pledge'));
     await tester.pumpAndSettle();
 
